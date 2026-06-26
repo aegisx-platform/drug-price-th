@@ -196,6 +196,12 @@ def inject(items, base, updated, count):
     h=re.sub(r'<!--SEO_JSONLD-->.*?<!--/SEO_JSONLD-->',
              f'<!--SEO_JSONLD--><script type="application/ld+json">\n{json_ld(items,base,updated,count)}\n</script><!--/SEO_JSONLD-->',h,flags=re.S)
     h=h.replace('__UPDATED__',updated).replace('__COUNT__',str(count)).replace('__BASEURL__',base)
+    aliases_path=os.path.join(ROOT,'data','aliases.json')
+    if os.path.exists(aliases_path):
+        raw=open(aliases_path,encoding='utf-8').read()
+        aliases={k.lower():v.lower() for k,v in json.loads(raw).items() if not k.startswith('_')}
+        aliases_js=json.dumps(aliases,ensure_ascii=False)
+        h=re.sub(r'/\*ALIASES_JSON\*/.*?/\*END_ALIASES\*/',f'/*ALIASES_JSON*/ {aliases_js} /*END_ALIASES*/',h,flags=re.S)
     open(p,'w',encoding='utf-8').write(h)
 def sitemap(base, updated):
     open(os.path.join(SITE,'sitemap.xml'),'w',encoding='utf-8').write(
