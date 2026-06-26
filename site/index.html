@@ -1945,7 +1945,7 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
         view=DATA.filter(function(d){
           if(g&&d.g!==g)return false;
           if(m&&mstat(d)!==m)return false;
-          if(TOKENS.length){var h=(d.gen+' '+d.form+' '+d.str+' '+d.pk).toLowerCase();if(!TOKENS.every(function(t){return h.indexOf(t)>=0;}))return false;}
+          if(TOKENS.length){var h=(d.gen+' '+d.form+' '+d.str+' '+d.pk+' '+d.g).toLowerCase();if(!TOKENS.every(function(t){return h.indexOf(t)>=0;}))return false;}
           return true;
         });
         if(s==='pl')view=view.slice().sort(function(a,b){return a.price-b.price;});
