@@ -215,12 +215,16 @@
   .resmeta{display:flex;justify-content:space-between;align-items:center;margin:18px 4px 6px;color:var(--mut);font-size:13px;}
   .dateline{font-size:11.5px;color:#94a3b8;margin:0 4px 10px;}
   .list{display:grid;gap:10px;}
-  .item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 17px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;box-shadow:0 1px 2px rgba(16,24,40,.03);transition:.15s;}
+  .item{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px 17px 15px 17px;padding-top:38px;display:grid;grid-template-columns:1fr auto;gap:6px 16px;box-shadow:0 1px 2px rgba(16,24,40,.03);transition:.15s;}
   .item:hover{box-shadow:var(--shadow);transform:translateY(-1px);border-color:#dbe6e6;}
   .gname{font-size:16px;font-weight:600;letter-spacing:-.2px;}
   .sub{color:var(--mut);font-size:13px;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   .tag{background:#f1f5f9;border-radius:7px;padding:2px 9px;font-size:12px;color:#475569;}
   .grp{color:#94a3b8;font-size:11.5px;margin-top:7px;}
+  .copy-btn{position:absolute;top:12px;right:12px;border:1px solid var(--line);background:#fff;color:var(--mut);border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;font-family:inherit;transition:.15s;line-height:1;}
+  .copy-btn:hover{background:#f1f5f9;color:var(--ink);}
+  .copy-btn.ok{border-color:#22c55e;color:#16a34a;background:#f0fdf4;}
+  .item{position:relative;}
   .right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;}
   .price{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;}
   .price small{font-size:12px;color:var(--mut);font-weight:500;margin-left:3px;}
@@ -274,7 +278,7 @@
     select{flex:1 1 100%;width:100%;max-width:100%;min-width:0;padding:11px 36px 11px 12px;font-size:14px;text-overflow:ellipsis;overflow:hidden;}
     #reset{padding:13px 16px;font-size:14px;}
     .resmeta{margin:14px 2px 8px;font-size:12.5px;}
-    .item{padding:14px 14px;border-radius:14px;}
+    .item{padding:38px 14px 14px;border-radius:14px;}
     .tips{display:none;}
     .chips{display:none;}
     .item{grid-template-columns:1fr;}
@@ -1993,8 +1997,18 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
           var badge=st==='mapped'?'<span class="badge b-ok">GP '+d.gp+'</span>':st==='review'?'<span class="badge b-rev">ต้องรีวิว</span>':'<span class="badge b-no">ยังไม่ map</span>';
           var price=(d.price||d.price===0)?Number(d.price).toLocaleString(undefined,{minimumFractionDigits:2})+'<small>บาท</small>'+(d.pk?'<span class="per">/ '+esc(d.pk)+'</span>':''):'<small>ตามประกาศ</small>';
           var el=document.createElement('div');el.className='item';
-          el.innerHTML='<div><div class="gname">'+hltext(d.gen)+'</div><div class="sub"><span class="tag">'+hltext(d.form||'-')+'</span>'+(d.str?'<span>'+hltext(d.str)+'</span>':'')+'</div><div class="grp">'+esc(d.g.replace(/^\s+/,''))+'</div></div>'+
+          var copyText=d.gen+(d.form?' '+d.form:'')+(d.str?' '+d.str:'')+(d.price!=null?'\nราคากลาง '+Number(d.price).toLocaleString(undefined,{minimumFractionDigits:2})+' บาท'+(d.pk?' / '+d.pk:''):'');
+          el.innerHTML='<button class="copy-btn" title="คัดลอก">คัดลอก</button>'+
+            '<div><div class="gname">'+hltext(d.gen)+'</div><div class="sub"><span class="tag">'+hltext(d.form||'-')+'</span>'+(d.str?'<span>'+hltext(d.str)+'</span>':'')+'</div><div class="grp">'+esc(d.g.replace(/^\s+/,''))+'</div></div>'+
             '<div class="right"><div class="price">'+price+'</div>'+badge+'</div>';
+          el.querySelector('.copy-btn').addEventListener('click',function(e){
+            e.stopPropagation();
+            var btn=this;
+            navigator.clipboard.writeText(copyText).then(function(){
+              btn.textContent='✓ คัดลอกแล้ว';btn.classList.add('ok');
+              setTimeout(function(){btn.textContent='คัดลอก';btn.classList.remove('ok');},1800);
+            });
+          });
           L.appendChild(el);
         });
         $('more').style.display=view.length>shown?'block':'none';
