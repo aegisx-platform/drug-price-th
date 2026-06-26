@@ -238,7 +238,45 @@
   .tip-chip:hover{background:rgba(255,255,255,.22);color:#fff;}
   #reset{border:1px solid #fca5a5;background:#fff5f5;color:#b91c1c;border-radius:11px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;transition:.15s;}
   #reset:hover{background:#fee2e2;}
-  @media(max-width:560px){h1{font-size:24px;}.item{grid-template-columns:1fr;}.right{align-items:flex-start;text-align:left;}}
+  /* ── iPad / Tablet ≤ 768px ── */
+  @media(max-width:768px){
+    .hero{padding:28px 18px 80px;}
+    h1{font-size:26px;}
+    .wrap{padding:0 16px;}
+    select{flex:1 1 calc(50% - 5px);max-width:none;}
+    #reset{flex:1 1 100%;text-align:center;}
+    .chips{flex:1 1 100%;}
+    .tip-chip{padding:7px 14px;font-size:13px;}
+  }
+  /* ── Mobile ≤ 480px ── */
+  @media(max-width:480px){
+    .hero{padding:20px 14px 68px;}
+    h1{font-size:21px;letter-spacing:-.3px;}
+    .lede{font-size:13px;}
+    #q{padding:15px 15px 15px 44px;font-size:16px;border-radius:13px;}
+    .searchbox svg{left:14px;}
+    .tips{gap:6px;margin-top:10px;}
+    .tip-chip{padding:6px 12px;font-size:12px;}
+    .stats{gap:16px;margin-top:14px;}
+    .stat b{font-size:18px;}
+    .wrap{padding:0 12px;margin:-58px auto 40px;}
+    .controls{padding:12px;gap:8px;}
+    select{flex:1 1 100%;max-width:none;padding:13px 38px 13px 14px;font-size:14px;}
+    #reset{padding:13px 16px;font-size:14px;}
+    .resmeta{margin:14px 2px 8px;font-size:12.5px;}
+    .item{padding:14px 14px;border-radius:14px;}
+    .item{grid-template-columns:1fr;}
+    .right{align-items:flex-start;text-align:left;flex-direction:row;flex-wrap:wrap;gap:8px 12px;margin-top:10px;}
+    .price{font-size:20px;}
+    .per{font-size:11px;margin-top:0;align-self:flex-end;margin-bottom:1px;}
+    .gname{font-size:15px;}
+    .more{width:100%;padding:15px;border-radius:14px;font-size:15px;}
+    .foot{padding:0 4px;}
+  }
+  /* ── ป้องกัน zoom เมื่อ focus input บน iOS ── */
+  @supports(-webkit-overflow-scrolling:touch){
+    select,#q{font-size:16px;}
+  }
 </style>
 </head>
 <body>
