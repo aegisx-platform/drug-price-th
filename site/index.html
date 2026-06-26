@@ -223,6 +223,7 @@
   .right{text-align:right;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;}
   .price{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;}
   .price small{font-size:12px;color:var(--mut);font-weight:500;margin-left:3px;}
+  .per{font-size:11.5px;color:var(--mut);margin-top:2px;}
   .badge{font-size:11px;padding:3px 9px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;gap:5px;}
   .b-ok{background:#e7f7f3;color:#0a7c66;} .b-no{background:#fdeef0;color:#c0344d;} .b-rev{background:#fff5e6;color:#b5790a;}
   .b-ok::before,.b-no::before,.b-rev::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
@@ -1916,9 +1917,9 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
         view.slice(0,shown).forEach(function(d){
           var st=mstat(d);
           var badge=st==='mapped'?'<span class="badge b-ok">GP '+d.gp+'</span>':st==='review'?'<span class="badge b-rev">ต้องรีวิว</span>':'<span class="badge b-no">ยังไม่ map</span>';
-          var price=(d.price||d.price===0)?Number(d.price).toLocaleString(undefined,{minimumFractionDigits:2})+'<small>บาท</small>':'<small>ตามประกาศ</small>';
+          var price=(d.price||d.price===0)?Number(d.price).toLocaleString(undefined,{minimumFractionDigits:2})+'<small>บาท</small>'+(d.pk?'<div class="per">ต่อ '+esc(d.pk)+'</div>':''):'<small>ตามประกาศ</small>';
           var el=document.createElement('div');el.className='item';
-          el.innerHTML='<div><div class="gname">'+hltext(d.gen)+'</div><div class="sub"><span class="tag">'+hltext(d.form||'-')+'</span>'+(d.str?'<span>'+hltext(d.str)+'</span>':'')+(d.pk?'<span>· บรรจุ '+hltext(d.pk)+'</span>':'')+'</div><div class="grp">'+esc(d.g.replace(/^\s+/,''))+'</div></div>'+
+          el.innerHTML='<div><div class="gname">'+hltext(d.gen)+'</div><div class="sub"><span class="tag">'+hltext(d.form||'-')+'</span>'+(d.str?'<span>'+hltext(d.str)+'</span>':'')+'</div><div class="grp">'+esc(d.g.replace(/^\s+/,''))+'</div></div>'+
             '<div class="right"><div class="price">'+price+'</div>'+badge+'</div>';
           L.appendChild(el);
         });
