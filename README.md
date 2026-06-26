@@ -1,87 +1,127 @@
 # ค้นหาราคากลางยา · Drug Price Index
 
-หน้าเว็บค้นหาราคากลางยา (ชื่อสามัญ / รูปแบบ / ความแรง) ที่ **ดึงข้อมูลจาก
-[ระบบราคากลางยา อย.](https://ndi.fda.moph.go.th/drug_value) เองอัตโนมัติ** ผ่าน GitHub Actions
-แล้ว deploy ขึ้น GitHub Pages — ไม่ต้องรันโค้ดที่เครื่อง ไม่ต้องวางไฟล์เอง
+> เว็บค้นหาราคากลางยาตามชื่อสามัญ รูปแบบ และความแรง — ดึงข้อมูลจากระบบราคากลางยา อย. โดยอัตโนมัติ ไม่ต้องรันโค้ดที่เครื่อง
 
-## ทำงานยังไง
+**🌐 เว็บไซต์:** https://aegisx-platform.github.io/drug-price-th
 
-```
-GitHub Action (ตั้งเวลา/กดเอง)
-   └─ scripts/build.py   ── ดึง HTML ทุกหน้าจาก ndi.fda.moph.go.th/drug_value
-                         ── parse + normalize  ─► site/data.json   (rawdata)
-                         ── ฉีด SEO (รายการ crawlable + JSON-LD + meta) ─► site/index.html
-                         ── เขียน site/sitemap.xml + robots.txt
-   └─ สร้าง Release "data-YYYYMMDD" แนบ data.json (เก็บเวอร์ชันราคาแต่ละรอบ)
-   └─ deploy site/ ขึ้น GitHub Pages
-```
+> **หมายเหตุ:** เว็บไซต์นี้ไม่ใช่เว็บไซต์ทางการของหน่วยงานรัฐ จัดทำขึ้นเพื่ออำนวยความสะดวกในการค้นหาราคากลางยาเท่านั้น
 
-หน้าเว็บ (`index.html`) โหลด `data.json` มาแสดง + ค้นหาฝั่ง client (เร็ว ไม่ต้องมี backend)
+---
 
-## วิธี deploy ครั้งแรก
+## Features
 
-1. สร้าง repo ใหม่บน GitHub แล้ว push โฟลเดอร์นี้ขึ้นไป (branch `main`)
-2. ไปที่ **Settings → Pages → Build and deployment → Source = GitHub Actions**
-3. ไปแท็บ **Actions → "Build & Deploy Drug Price Index" → Run workflow** (กดรันครั้งแรก)
-4. เสร็จแล้วเปิดได้ที่ `https://<user>.github.io/<repo>/`
+- **ค้นหาหลายคำ** — พิมพ์ `paracetamol 325` หรือ `insulin tab 100mg` ได้เลย ทุก token ต้อง match (AND logic)
+- **ชื่อการค้าและชื่อไทย** — `panadol`, `ซาร่า`, `norflox`, `lasix` ฯลฯ แปลงเป็น INN อัตโนมัติ พร้อมแสดง hint
+- **ค้นชื่อกลุ่มยา** — พิมพ์ `penicillin`, `opioid` ฯลฯ ได้เลย
+- **Highlight คำที่เจอ** — ทุก token ที่ match จะ highlight สีเหลืองในผลลัพธ์
+- **กรองและเรียง** — กลุ่มยา / สถานะ / ราคา / ชื่อ A→Z พร้อมปุ่มล้างทั้งหมด
+- **ราคาต่อหน่วย** — แสดง "X บาท / 1 tablet" ชัดเจน
+- **คัดลอก** — ปุ่ม copy ทุกการ์ด คัดลอกชื่อยา + ราคาได้ทันที
+- **Mobile-first** — รองรับ iPhone / Android / iPad filter panel ซ่อนได้บนมือถือ
+- **อัปเดตอัตโนมัติ** — GitHub Actions ดึงข้อมูลจาก NDI ใหม่ทุกวันจันทร์ 02:00 น.
 
-จากนั้นมันจะอัปเดตเอง **ทุกวันจันทร์** (ปรับ cron ใน `.github/workflows/deploy.yml` ได้)
-หรือกด **Run workflow** เพื่อ release รอบใหม่ทันที — ทั้งหมดทำบน GitHub ไม่ต้องแตะเครื่อง
+---
 
-## โครงสร้าง
+## วิธีการทำงาน
 
 ```
-drug-price-index/
+GitHub Actions (ตั้งเวลา / กดเอง)
+   └─ scripts/build.py
+         ├─ scrape HTML ทุกหน้าจาก ndi.fda.moph.go.th/drug_value
+         ├─ parse + normalize → site/data.json
+         ├─ inject aliases (data/aliases.json) → site/index.html
+         ├─ inject SEO (JSON-LD, crawlable list, meta) → site/index.html
+         └─ เขียน site/sitemap.xml + robots.txt
+   └─ สร้าง GitHub Release "data-YYYYMMDD" แนบ data.json (เก็บประวัติทุกรอบ)
+   └─ deploy site/ → GitHub Pages
+```
+
+`index.html` โหลด `data.json` แล้วค้นหาฝั่ง client ทั้งหมด — ไม่มี backend
+
+---
+
+## Deploy ครั้งแรก
+
+1. Fork / สร้าง repo ใหม่แล้ว push โฟลเดอร์นี้ขึ้น branch `main`
+2. **Settings → Pages → Source = GitHub Actions**
+3. **Actions → "Build & Deploy Drug Price Index" → Run workflow**
+4. เปิดที่ `https://<user>.github.io/<repo>/`
+
+หลังจากนั้นอัปเดตเองทุกวันจันทร์ หรือกด **Run workflow** ได้ตลอดเวลา
+
+---
+
+## โครงสร้างไฟล์
+
+```
+drug-price-th/
 ├─ site/
-│  ├─ index.html        หน้าเว็บค้นหา (มี SEO markers, โหลด data.json)
-│  ├─ data.json         rawdata (สร้างโดย build.py)  ← UI ใช้ไฟล์นี้
+│  ├─ index.html        หน้าเว็บ (template — build.py inject เนื้อหาเข้าไป)
+│  ├─ data.json         rawdata ราคายา (สร้างโดย build.py)
 │  ├─ sitemap.xml       (สร้างอัตโนมัติ)
 │  └─ robots.txt        (สร้างอัตโนมัติ)
 ├─ scripts/
-│  ├─ build.py          ดึง+แปลง+ฉีด SEO  (โหมดเว็บ / --file)
+│  ├─ build.py          scraper + SEO injector + alias injector
 │  └─ requirements.txt
-├─ data/raw/            ไฟล์ .xls สำรอง (ใช้กับโหมด --file เท่านั้น)
+├─ data/
+│  ├─ aliases.json      ชื่อการค้า / ชื่อไทย → INN (แก้ได้โดยไม่ต้องแตะโค้ด)
+│  └─ raw/              ไฟล์ .xls สำรอง (ใช้กับ --file เท่านั้น)
 └─ .github/workflows/deploy.yml
 ```
 
-## รันเองในเครื่อง (ถ้าต้องการทดสอบ)
+---
+
+## รันในเครื่อง (สำหรับทดสอบ)
 
 ```bash
 pip install -r scripts/requirements.txt
 
-# โหมดดึงจากเว็บ (เหมือนที่ Action ทำ)
+# scrape สดจาก NDI (เหมือน Action)
 python scripts/build.py --base-url http://localhost:8000
 
-# หรือโหมดไฟล์สำรอง (ไม่ต่อเน็ต ต้องมี LibreOffice)
-python scripts/build.py --file data/raw/<ไฟล์>.xls --base-url http://localhost:8000
+# อ่านจากไฟล์ .xls สำรอง (ต้องมี LibreOffice)
+python scripts/build.py --file data/raw/<file>.xls --base-url http://localhost:8000
 
-# พรีวิว (ต้องเสิร์ฟผ่าน http ไม่ใช่เปิดไฟล์ตรง ๆ เพราะ fetch ถูกบล็อกบน file://)
-cd site && python -m http.server 8000   # เปิด http://localhost:8000
+# อ่านจาก URL ตรง (เช่น ไฟล์ประกาศ DMSIC)
+python scripts/build.py --url <url> --base-url http://localhost:8000
+
+# Preview (ต้องเสิร์ฟผ่าน HTTP — fetch ถูกบล็อกบน file://)
+cd site && python -m http.server 8000
 ```
 
-## SEO
+---
 
-- `<title>`, `description`, `keywords`, canonical, Open Graph, Twitter card
-- **JSON-LD** `WebSite` (+ `SearchAction` รองรับ `?q=`) และ `Dataset`
-- รายการยา **crawlable** ฝังใน DOM (ซ่อนสายตาแต่ search engine อ่านได้) สร้าง build-time
-- `sitemap.xml` + `robots.txt` อัปเดต lastmod ทุกรอบ build
+## เพิ่ม/แก้ชื่อการค้า (Aliases)
 
-## แหล่งข้อมูล (เลือกได้)
+แก้ไฟล์ `data/aliases.json` แล้ว commit ขึ้น — `build.py` inject เข้า HTML อัตโนมัติตอน build ไม่ต้องแตะโค้ด JS
 
-build.py ตรวจ layout ไฟล์เองอัตโนมัติ (รองรับทั้ง export ของ NDI และไฟล์ประกาศ DMSIC)
-มี 3 โหมด:
+```json
+{
+  "panadol": "paracetamol",
+  "ซาร่า": "paracetamol",
+  "norflox": "norfloxacin"
+}
+```
 
-| โหมด | คำสั่ง | ใช้เมื่อ |
-|------|--------|---------|
-| NDI scrape (ดีฟอลต์) | `build.py` | ดึงสด ๆ จาก ndi.fda.moph.go.th อัตโนมัติทุกรอบ |
-| DMSIC / URL ตรง | `build.py --url <ลิงก์ .xls>` | มีลิงก์ไฟล์ประกาศโดยตรง (เช่นจาก dmsic.moph.go.th) |
-| ไฟล์ในเครื่อง | `build.py --file <ไฟล์>` | อัปไฟล์เอง / ทดสอบออฟไลน์ |
+> ควรให้เภสัชกรหรือบุคลากรทางการแพทย์ตรวจสอบก่อน deploy จริง
 
-**บน GitHub Action:** กด *Run workflow* แล้ววางลิงก์ไฟล์ DMSIC ในช่อง `source_url`
-จะดาวน์โหลด+build จากไฟล์นั้น (เว้นว่าง = ดึงจาก NDI อัตโนมัติ) — ทำบนคลาวด์ ไม่ต้องแตะเครื่อง
+---
 
-ที่มา:
-- ระบบราคากลางยา อย. — <https://ndi.fda.moph.go.th/drug_value>
-- ศูนย์ข้อมูลข่าวสารด้านเวชภัณฑ์ สธ. (DMSIC) — <https://dmsic.moph.go.th/index/dataservice/90/0>
+## แหล่งข้อมูลทางการ
 
-ราคารวมภาษีมูลค่าเพิ่ม 7% แล้ว ตามประกาศคณะกรรมการพัฒนาระบบยาแห่งชาติ
+| แหล่งข้อมูล | ลิงก์ |
+|-------------|-------|
+| ระบบราคากลางยา สำนักงานคณะกรรมการอาหารและยา (อย.) | https://ndi.fda.moph.go.th/drug_value |
+| ศูนย์ข้อมูลข่าวสารด้านเวชภัณฑ์ กระทรวงสาธารณสุข (DMSIC) | https://dmsic.moph.go.th/index/dataservice/90/0 |
+
+ราคารวมภาษีมูลค่าเพิ่ม 7% ตามประกาศคณะกรรมการพัฒนาระบบยาแห่งชาติ
+
+---
+
+## GitHub Actions Triggers
+
+| Trigger | เงื่อนไข |
+|---------|---------|
+| อัตโนมัติ | ทุกวันอาทิตย์ 19:00 UTC (จันทร์ 02:00 น. ไทย) |
+| Push | เมื่อแก้ `site/index.html`, `scripts/**`, `.github/workflows/**` |
+| Manual | กด **Run workflow** — ใส่ `source_url` (URL ไฟล์ .xls จาก DMSIC) หรือเว้นว่างเพื่อ scrape NDI |
