@@ -232,6 +232,11 @@
   .foot{text-align:center;color:#9aa6b8;font-size:12px;margin-top:34px;line-height:1.7;}
   .foot a{color:#0d8a89;text-decoration:none;} .foot a:hover{text-decoration:underline;}
   mark{background:#fef08a;color:inherit;border-radius:2px;padding:0 1px;font-style:normal;}
+  .tips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;font-size:13px;color:#aeb9d6;}
+  .tip-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#e2e8f0;border-radius:999px;padding:5px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;transition:.15s;}
+  .tip-chip:hover{background:rgba(255,255,255,.22);color:#fff;}
+  #reset{border:1px solid #fca5a5;background:#fff5f5;color:#b91c1c;border-radius:11px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;transition:.15s;}
+  #reset:hover{background:#fee2e2;}
   @media(max-width:560px){h1{font-size:24px;}.item{grid-template-columns:1fr;}.right{align-items:flex-start;text-align:left;}}
 </style>
 </head>
@@ -244,7 +249,14 @@
       อัปเดต <span id="upd">2026-06-26</span></p>
     <div class="searchbox">
       <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2"><circle cx="9" cy="9" r="7"/><path d="M19 19l-4.5-4.5"/></svg>
-      <input id="q" placeholder="เช่น Sofosbuvir, insulin, 400 mg…" autocomplete="off" aria-label="ค้นหาราคากลางยา"/>
+      <input id="q" placeholder="เช่น paracetamol 325, insulin tab, amoxicillin 500mg…" autocomplete="off" aria-label="ค้นหาราคากลางยา"/>
+    </div>
+    <div class="tips">
+      <span>💡 พิมพ์หลายคำได้เลย เช่น</span>
+      <button class="tip-chip" onclick="setQ('paracetamol 325')">paracetamol 325</button>
+      <button class="tip-chip" onclick="setQ('insulin tab')">insulin tab</button>
+      <button class="tip-chip" onclick="setQ('amoxicillin 500mg')">amoxicillin 500mg</button>
+      <button class="tip-chip" onclick="setQ('omeprazole cap 20')">omeprazole cap 20</button>
     </div>
     <div class="stats">
       <div class="stat"><b id="s-total">–</b><span>รายการยา</span></div>
@@ -258,6 +270,7 @@
       <select id="grp" aria-label="กรองตามกลุ่มยา"><option value="">ทุกกลุ่มยา</option></select>
       <select id="mst" aria-label="กรองตามสถานะ"><option value="">ทุกสถานะ</option><option value="mapped">map TMT แล้ว</option><option value="unmapped">ยังไม่ map</option><option value="review">ต้องรีวิว</option></select>
       <select id="sort" aria-label="เรียงลำดับ"><option value="rel">เรียง: ตามกลุ่ม</option><option value="pl">ราคาน้อย→มาก</option><option value="ph">ราคามาก→น้อย</option><option value="az">ชื่อ A→Z</option></select>
+      <button id="reset" onclick="resetAll()" style="display:none" aria-label="ล้างตัวกรองทั้งหมด">✕ ล้างทั้งหมด</button>
       <div class="chips" id="chips"></div>
     </div>
     <div class="resmeta"><span id="cnt"></span><span id="hint"></span></div>
@@ -1855,6 +1868,8 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
 
     function init(DATA){
       var PAGE=24, shown=PAGE, view=DATA, TOKENS=[];
+      function setQ(v){$('q').value=v;apply();$('q').focus();}
+      function resetAll(){$('q').value='';$('grp').value='';$('mst').value='';$('sort').value='rel';apply();}
       function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
       function hltext(s){
         var safe=esc(s);
@@ -1878,6 +1893,8 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
       function apply(){
         var q=$('q').value.trim().toLowerCase(), g=$('grp').value, m=$('mst').value, s=$('sort').value;
         TOKENS=q?q.split(/\s+/).filter(Boolean):[];
+        var hasFilter=q||g||m||(s&&s!=='rel');
+        $('reset').style.display=hasFilter?'block':'none';
         view=DATA.filter(function(d){
           if(g&&d.g!==g)return false;
           if(m&&mstat(d)!==m)return false;
