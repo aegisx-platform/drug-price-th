@@ -1923,6 +1923,10 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
   <script>
   document.addEventListener('DOMContentLoaded', function(){
     var $=function(id){return document.getElementById(id);};
+    var ALIASES={};
+    fetch('./aliases.json').then(function(r){return r.json();}).then(function(a){
+      Object.keys(a).forEach(function(k){if(k[0]!=='_') ALIASES[k.toLowerCase()]=a[k].toLowerCase();});
+    }).catch(function(){});
     fetch('./data.json').then(function(r){return r.json();}).then(function(p){ init(p.items||p, p.meta||{}); })
       .catch(function(e){
         $('list').innerHTML='<div class="empty"><div class="big">⚠️</div>โหลด data.json ไม่สำเร็จ<br/>'
@@ -1968,7 +1972,7 @@ potassium clavulanate dispersible tab 875mg 125mg — ราคากลาง 1
       });
       function apply(){
         var q=$('q').value.trim().toLowerCase(), g=$('grp').value, m=$('mst').value, s=$('sort').value;
-        TOKENS=q?q.split(/\s+/).filter(Boolean):[];
+        TOKENS=q?q.split(/\s+/).filter(Boolean).map(function(t){return ALIASES[t]||t;}):[];
         var hasFilter=q||g||m||(s&&s!=='rel');
         $('reset').style.display=hasFilter?'block':'none';
         var activeCount=[q,g,m,(s&&s!=='rel')?s:''].filter(Boolean).length;

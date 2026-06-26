@@ -46,6 +46,7 @@ jobs:
             echo "ดึงจาก NDI อัตโนมัติ"
             python scripts/build.py --base-url "$BASE"
           fi
+          cp data/aliases.json site/aliases.json
           touch site/.nojekyll
 
       - name: Show data summary
