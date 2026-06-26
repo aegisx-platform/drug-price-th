@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://aegisx-platform.github.io/drug-price-th/sitemap.xml

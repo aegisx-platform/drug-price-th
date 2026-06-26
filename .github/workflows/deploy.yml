@@ -1,0 +1,74 @@
+name: Build & Deploy Drug Price Index
+
+# รัน: กดเอง (workflow_dispatch), ทุกวันจันทร์ 02:00 น. ไทย, หรือเมื่อแก้โค้ด
+on:
+  workflow_dispatch:
+    inputs:
+      source_url:
+        description: 'ลิงก์ไฟล์ .xls/.xlsx โดยตรง (เช่นไฟล์ประกาศจาก DMSIC) — เว้นว่าง = ดึงจาก NDI อัตโนมัติ'
+        required: false
+        default: ''
+  schedule:
+    - cron: '0 19 * * 0'        # 19:00 UTC วันอาทิตย์ = 02:00 จันทร์ (ไทย)
+  push:
+    branches: [ main ]
+    paths: [ 'site/index.html', 'scripts/**', '.github/workflows/**' ]
+
+permissions:
+  contents: write               # สำหรับสร้าง Release ของ data.json
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+
+      - name: Install deps
+        run: pip install -r scripts/requirements.txt
+
+      - name: Build site (NDI auto-scrape หรือไฟล์ DMSIC ตาม source_url)
+        run: |
+          BASE="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          URL="${{ github.event.inputs.source_url }}"
+          if [ -n "$URL" ]; then
+            echo "ดาวน์โหลดจาก: $URL"
+            python scripts/build.py --base-url "$BASE" --url "$URL"
+          else
+            echo "ดึงจาก NDI อัตโนมัติ"
+            python scripts/build.py --base-url "$BASE"
+          fi
+          touch site/.nojekyll
+
+      - name: Show data summary
+        run: |
+          python - <<'PY'
+          import json
+          m=json.load(open('site/data.json'))['meta']
+          print("รายการ:",m['count'],"| อัปเดต:",m['updated'],"| hash:",m['content_hash'])
+          PY
+
+      # ---- Release: เก็บ rawdata เป็นเวอร์ชันตามวันที่ ----
+      - name: Create dated Release of rawdata
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          TAG="data-$(date +%Y%m%d)"
+          gh release create "$TAG" site/data.json \
+            --title "ราคากลางยา ($(date +%Y-%m-%d))" \
+            --notes "rawdata อัตโนมัติจาก NDI/FDA · $(python -c "import json;print(json.load(open('site/data.json'))['meta']['count'])") รายการ" \
+            || gh release upload "$TAG" site/data.json --clobber
+
+      # ---- Deploy ขึ้น GitHub Pages ----
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: 'site' }
+      - id: deployment
+        uses: actions/deploy-pages@v4
